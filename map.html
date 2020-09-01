@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <div id="mapid"></div>
+
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js">
+    </script>
+
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="">
+    </script>
+    <script src="">
+        function initMap() {
+            var url_api_geocoding;
+            var adresse = '{/literal}{$mission.adresse}{literal}';
+            var cp = '{/literal}{$mission.cp}{literal}';
+            var ville = '{/literal}{$mission.commune}{literal}';
+
+            if (adresse !== '' || (cp !== '' && ville !== '')) {
+                url_api_geocoding = 'https://api-adresse.data.gouv.fr/search/?q=' + adresse.split(' ').join('+') + (adresse !== '' ? '+' : '') + ville.split(' ').join('+') + '&postcode=' + cp + '&limit=1';
+
+                axios.get(url_api_geocoding).then((response) => {
+                    let data = response.data;
+                    console.log(data);
+                    var lon = data.features[0].geometry.coordinates[0];
+                    var lat = data.features[0].geometry.coordinates[1];
+                    var mymap = new L.map('mapid').setView([lat, lon], 5);
+                    mymap.panTo([lat, lon]);
+                    console.log('de', mymap);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                        minZoom: 1,
+                        maxZoom: 20,
+                        accessToken: 'pk.eyJ1IjoiYWhtYWRhbG1hc3JpIiwiYSI6ImNrZTQzeHlibjBwNzMyc29iYnUwdWZwMXUifQ.L_dHuon6uopEKJKlH_kIYg'
+                    }).addTo(mymap);
+
+                    var circle = L.circle([lat, lon], {
+                        color: 'red',
+                        fillColor: '#f03',
+                        fillOpacity: 0.5,
+                        radius: 500
+                    }).addTo(mymap);
+                    if (mymap) {
+                        console.log(mymap);
+                    }
+                    var popup = L.popup()
+                        .setLatLng([lat, lon])
+                        .setContent("I am a standalone popup.")
+                        .openOn(mymap);
+
+                    function onMapClick(e) {
+                        popup
+                            .setLatLng(e.latlng)
+                            .setContent("You clicked the map at " + e.latlng.toString())
+                            .openOn(mymap);
+                    }
+
+                    mymap.on('click', onMapClick);
+
+
+                }).catch((err) => console.log(err))
+
+
+
+            }
+        }
+        initMap();
+    </script>
+</body>
+
+</html>

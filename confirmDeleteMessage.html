@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <a href="
+  
+       
+        {{ path(" mission_supprimer ", {"id ": mission.id}) }}
+      
+  
+
+    ">
+        <script>
+            { %
+                if app.request.get('mode') == 'supprimer' %
+            }
+
+            function confirmSuppression(event) {
+                event.preventDefault();
+
+                var el = $(this);
+
+                ModalAlert.confirm("Êtes-vous sûr(e) de vouloir supprimer cette mission ?", {
+                    textBoxBtnOk: "Oui",
+                    textBoxBtnCancel: "Non",
+                    onComplete: function(res) {
+                        if (res) {
+                            window.location.href = el.attr('href');
+                        }
+                    }
+                });
+            }
+
+            $(function() {
+                $('tr .supprimer a').on('click', confirmSuppression);
+            });
+        </script>
+</body>
+
+</html>

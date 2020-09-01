@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <h3>Logo</h3>
+    {% if not form.vars.disabled %}
+    <fieldset>
+        <div class="field">
+            <label for="upload_logo">&nbsp;</label>
+
+            <div id="fake_upload_logo" class="fake-input" {% if form.vars.disabled %} style="cursor: default" {% endif %}>
+                {% if logo is defined and logo != '' %}
+                <div id="uploaded_logo" style="background-image:url('data:image/png;base64,{{ logo }}');"></div>
+
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    {% else %}
+    <fieldset>
+        <div class="field inline-checks text_center">
+            {% if logo is defined and logo != '' %}
+            <img src="data:image/png;base64,{{ logo }}" id="fake_upload_logo"> {% endif %}
+        </div>
+
+    </fieldset>
+    {% endif %}
+
+
+
+    <fieldset>
+        <input type="file" id="upload_logo" name="upload_logo" style="display:none;" />
+
+
+
+
+
+
+
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+        {% javascripts '@UfmcpBundle/Resources/public/js/jquery/jquery.daqndrop.js' %}
+        <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+        <script>
+            function remove_temp_logo(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#uploaded_logo').css('background-image', 'none');
+                // $('#uploaded_logo').remove();
+                $('.dropzone').find('.overlay').children('.icon-cancel').remove();
+                $.ajax({
+                    url: Routing.generate('delete_temp_file', {
+                        type: 'entreprise_logo'
+                    }),
+                    type: 'POST',
+                    async: false,
+                    data: {
+                        token: $('#upload_token').val()
+                    }
+                });
+            }
+
+            function upload_logo(file) {
+                if ($('#uploaded_logo').length > 0) {
+                    $('#uploaded_logo').css('background-image', 'none');
+                }
+                var fake_upload_logo = $('#fake_upload_logo');
+                fake_upload_logo.children('.dropzone').appendSpinner();
+
+                var token = $('#upload_token').val();
+                var formData = new FormData();
+                formData.append('file', file);
+                formData.append('token', token);
+
+                $.ajax({
+                    url: Routing.generate("upload_temp_file", {
+                        type: 'entreprise_logo'
+                    }),
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response) {
+
+                            var fake_upload_logo = $('#fake_upload_logo');
+                            var uploaded = $('#uploaded_logo');
+                            var data = 'url(\'' + "data:image/png;base64," + response + '\')';
+                            if (uploaded.length == 0) {
+                                fake_upload_logo.append('\
+                                <div id="uploaded_logo" style="background-image: ' + data + ';"></div>\
+                            ');
+                            } else {
+                                uploaded.css('background-image', data);
+                                // uploaded.attr('src', "data:image/png;base64,"+response );
+                            }
+                            fake_upload_logo.removeSpinner();
+                            fake_upload_logo.resetDaqndropView();
+                            fake_upload_logo.enableDaqndropRemove(remove_temp_logo);
+                        }
+                    }
+                });
+            }
+
+            $(function() {
+
+
+                $('#upload_rib').change(function() {
+                    $('#fake_upload_rib').disableDaqndropView();
+                    var file = $('#upload_rib')[0].files[0];
+                    upload_rib(file);
+                });
+
+                $('input[name$="[ribIban][f]"]').attr('maxlength', '3');
+
+                $('#fake_upload_logo').daqndrop({
+                    {#
+                        { %
+                            if logo is not empty %
+                        }#
+                    } {#
+                        initRemoveButton: true,
+                        #
+                    } {#
+                        onRemove: remove_logo_after_submit,
+                        #
+                    } {#
+                        { % endif %
+                        }#
+                    }
+                    onDrop: upload_logo,
+                    onChoose: function() {
+                        $('#upload_logo').click();
+                    }
+                });
+
+                $('#upload_logo').change(function() {
+                    $('#fake_upload_logo').disableDaqndropView();
+                    var file = $('#upload_logo')[0].files[0];
+                    upload_logo(file);
+                });
+            });
+        </script>
+</body>
+
+</html>

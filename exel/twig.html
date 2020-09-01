@@ -1,0 +1,10 @@
+<div class="list-header">
+    <a href="javascript:export_xls();" class="btn_action btn_grey">Export Excel</a>
+    <a href="javascript:window.print();" class="btn_action btn_grey">Imprimer</a>
+</div>
+
+<script>
+    function export_xls() {
+        $('.tablesorter').trigger('outputTable');
+    }
+</script>

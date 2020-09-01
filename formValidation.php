@@ -1,5 +1,6 @@
 //inside base.html.twig 
-
+{{ js_validator_config() }}
+{{ init_js_validation() }}
 <script type="text/javascript">
             moment.locale('fr');
             $(function() {

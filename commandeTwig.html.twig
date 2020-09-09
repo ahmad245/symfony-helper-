@@ -1,0 +1,625 @@
+{% extends '::base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style type="text/css">
+        table{
+            /*margin-top: 1rem !important;*/
+        }
+        thead tr:first-child th:not(:last-child), tr td:not(:last-child),
+        thead tr:nth-child(2) th:nth-child(even):not(:last-child),
+        thead tr:nth-child(3) th:nth-child(odd):not(:last-child),
+        tfoot th:nth-child(odd):not(:last-child){
+            border-right: 1px solid rgb(158, 158, 158) !important;
+        }
+        tbody tr td{
+            /*font-size: .8rem !important;*/
+            white-space: nowrap;
+            /*padding: 0 !important;*/
+            /*min-width: 2rem;*/
+            /*max-height: 2rem;*/
+
+            font-size: 10px !important;
+            padding: 2px 4px !important;
+
+
+
+        }
+        .td-exel{
+            color: transparent !important;
+            padding: 0 !important;
+            /*padding: 2px 2px !important;*/
+
+
+        }
+        .tdBg{
+            background-color:rgb(2, 171, 172) !important;
+        }
+        .totalNB{
+            /*background-color:rgba(2, 171, 172,.2) !important;*/
+            background-color: #969696 !important;
+        }
+        #sumTotal{
+            background-color:#cefefe !important
+        }
+        .total{
+            /*background-color:rgba(2, 171, 172,.3) !important;*/
+            background-color:  #f0f0f0 !important;
+        }
+
+        .heureTr{
+            /*background-color: #f9f9f9 !important;*/
+            background-color: #f9f9f9 !important;
+            border: none;
+        }
+        .heureTr td{
+            /*background-color: #f9f9f9 !important;*/
+            background-color: #f9f9f9 !important;
+            border: none !important;
+        }
+        .tablesorter input{
+            width: 100%;
+            border: none;
+            font-size: 12px;
+            /*height: 100%;*/
+            /*padding: 0 !important;*/
+            margin: 0 !important;
+            text-align: center;
+            line-height: 5px !important;
+            background-color:#FFFFFF !important;
+            background: #FFFFFF !important;
+
+        }
+        /*.tablesorter input {*/
+            /*!* width: 100%; *!*/
+            /*border: none;*/
+             /*font-size: 10px; */
+            /*!* height: 100%; *!*/
+            /*padding: 0 !important;*/
+            /*!* margin: 0 !important; *!*/
+            /*text-align: center;*/
+            /*line-height: 5px !important;*/
+            /*background-color: #FFFFFF !important;*/
+            /*background: #FFFFFF !important;*/
+        /*}*/
+        .commande{
+            /*border-bottom: 1px solid red !important;*/
+            background-color: #cefefe  !important;
+        }
+        .commandeInput input{
+            background:  #cefefe  !important;
+            background-color:#cefefe !important;
+        }
+        input[type=number]::-webkit-inner-spin-button {
+            /*-webkit-appearance: none;*/
+            font-size: 10px;
+        }
+        .customInput{
+
+            border-bottom: 1px solid #02abac !important;
+            box-shadow: 0 1px 0 0 #02abac !important;
+            transition: border-bottom-color .2s ease-out ;
+        }
+        /*.action{*/
+            /*display: flex;*/
+            /*align-items: center;*/
+        /*}*/
+        .btn_action,.btn_grey{
+            margin-bottom: -14px !important;
+        }
+        .paddingInput{
+            padding-left: 0px;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+
+
+    <h1 class="title">
+        Planification
+    </h1>
+
+        <form action="{{ path('commande_planification_save') }}"  method="POST">
+        {#<form action="" style="padding-bottom: 2rem">#}
+            <div class="headers">
+
+            <div class="inline-block" style="margin-top: 0; margin-right: 10px">
+                <div class="field" style="margin-top: 0">
+                    <label for="agenda">Agence</label>
+                    <select id="agenda" name="agenda" style="width: 300px">
+                        <option value=""></option>
+
+                        {% for ag in agences %}
+
+                            <option value="{{ ag.id }}" {% if app.request.get('agenda') and app.request.get('agenda')==ag.id  %}selected  {% elseif  app.request.get('agenda') is empty and loop.first  %}  selected{% endif %} >{{ ag.libelleStructure }} - {{ ag. getLibelleTypeStructure() }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+            </div>
+
+            <div class="inline-block" style="margin-right: 10px">
+                <div class="field" style="margin-top: 0">
+                    <label for="agenda_annee">Année</label>
+                    <select id="agenda_annee" name="annee" style="width: 80px">
+                        <option value=""></option>
+                        {% for sAnnee in 2016.."now"|date("Y") %}
+                            <option value="{{ sAnnee }}" {% if app.request.get('annee') and app.request.get('annee')==sAnnee  %}  selected {% elseif app.request.get('annee') is empty and sAnnee== 'now'|date('Y') %} selected {% else %} {% endif %}  > {{ sAnnee }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="inline-block" style="margin-top: 0; margin-right: 10px">
+                <div class="field" style="margin-top: 0">
+                    <label for="agenda_mois">Mois</label>
+                    <select id="agenda_mois" name="mois" style="width: 150px">
+                        <option value=""></option>
+                        {% for nbMois in 1..12 %}
+                            <option value="{{ nbMois }} " {% if  app.request.get('mois') and app.request.get('mois')==nbMois  %}selected  {% elseif app.request.get('mois') is empty and nbMois== 'now'|date('m') %} selected {% else %} {% endif %}>{{ date("2017-" ~ "%02d"|format(nbMois) ~ "-01")|localizeddate("medium", "none", null, null, "MMMM")|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+                {#{% set newArrayCommande = [] %}#}
+                {#{% set ArrayCommandeD = [] %}#}
+
+                {#{% for name in agenceInf.getPlanifications() %}#}
+                    {#{% set ArrayCommandeD = ArrayCommandeD|merge([name.commande]) %}#}
+                    {#{% if name.commande not in newArrayCommande %}#}
+                        {#{% set newArrayCommande = newArrayCommande|merge([name.commande]) %}#}
+                    {#{% endif %}#}
+
+
+                {#{% endfor %}#}
+
+
+                {#{% set arrWithFreq=[] %}#}
+                {#{% set arrWithFreq=ArrayCommandeD|freq() %}#}
+
+
+                {% set newArrayCommande = [] %}
+                {% set ArrayCommandeD = [] %}
+
+                {% for name in agenceInf.getPlanificationsByCommande(commandes) %}
+                    {% set ArrayCommandeD = ArrayCommandeD|merge([name.commande]) %}
+                    {% if name.commande not in newArrayCommande %}
+                        {% set newArrayCommande = newArrayCommande|merge([name.commande]) %}
+                    {% endif %}
+
+
+                {% endfor %}
+
+
+                {% set arrWithFreq=[] %}
+                {% set arrWithFreq=ArrayCommandeD|freq() %}
+
+
+                {% set lengthCommande=newArrayCommande|length %}
+
+
+                <div class="inline-block" style="margin-top: 0; margin-right: 10px">
+                    <div class="field" style="margin-top: 0">
+                        <label for="commande">Commande</label>
+                        <select id="commande" name="commande" style="min-width: 182px">
+                            <option value=""></option>
+                            {% if lengthCommande==0 %}
+                                <option value="1" selected  > Initiale</option>
+                            {% endif %}
+                            {% for commande in newArrayCommande|sort %}
+
+                                <option value="{{commande}}" {% if app.request.get('commande') and app.request.get('commande')==commande  %}selected {% elseif app.request.get('commande') and app.request.get('commande') > lengthCommande and loop.last %} selected {% elseif  app.request.get('commande') is empty and loop.last  %}selected {% endif %}> {% if commande == 1   %}Initiale {% else %} Supplémentaire n°{{ commande - 1 }} {% endif %}</option>
+                                {#<option value="{{commande}}"  {% if  loop.last  %}  selected{% endif %}> {% if commande == 1  %}Initiale{% else %} Supplémentaire n°{{ commande - 1 }} {% endif %}</option>#}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="inline-block" style="">
+                <a href="#" id="clear" class=" btn_action btn_grey" style="float:right;" >NOUVELLE COMMANDE</a>
+                </div>
+
+
+
+                <div class="inline-block" style="float:right;  margin-bottom: -14px; ">
+                <a href="
+                {{ path('planification_export',{'id':  app.request.get('agenda') ?  app.request.get('agenda') : agences[0].id,'annee':app.request.get('annee'),'mois':app.request.get('mois'),'commande':app.request.get('commande')  }) }}"
+                class="fancybox fancybox.ajax btn_action btn_grey" style="float:right; margin-bottom: -14px;" >Export Excel</a>
+
+                </div>
+
+    </div>
+
+    {% set dateFormated = app.request.get('annee')  ~ '-'~ app.request.get('mois') ~ '-'~ 1 %}
+
+    <div class="tables">
+
+        <div id="table_div">
+            <table   style="overflow-y: auto ;margin-top: 15px " id="sorted_table_jd" class="tablesorter no-column-selector not-resizable table-planif">
+                <thead>
+                <tr>
+                    <th colspan="1" style="width: 10%" class="sorter-false">Date</th>
+                    <th colspan="41" style="width: 80%" class="sorter-false">PLAGES HORAIRES</th>
+                    <th colspan="1" style="width: 10%" class="sorter-false">NB PLAGES</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set arrayH=[] %}
+                {% set arrayH2=[] %}
+                {% set jourHeure=[] %}
+                {% if agenceInf is not null %}
+
+                    {#modify il faudrait la même chose en affichage plateforme du coup#}
+                    {#{% for i in agenceInf.getPlanifications()  %}#}
+
+                        {#{% set jourHeure= jourHeure|merge({  (i.getJourHeure|date("d/m/Y H:i"))  :{'nombre':( i.getNombre ),'commande':(i.getCommande)}  }) %}#}
+
+                    {#{% endfor %}#}
+
+                    {% for i in agenceInf.getPlanificationsByCommande(range(1,app.request.get('commande') ? app.request.get('commande') : lengthCommande  ))  %}
+
+                        {% if jourHeure is defined  and jourHeure is not empty and    i.getJourHeure|date("d/m/Y H:i") in  jourHeure|keys %}
+
+                            {% set nombre=jourHeure[i.getJourHeure|date("d/m/Y H:i")].nombre +  i.getNombre %}
+                            {% else %}
+                            {% set nombre = i.getNombre %}
+                        {% endif %}
+                        {% set jourHeure= jourHeure|merge({  (i.getJourHeure|date("d/m/Y H:i"))  :{'nombre':nombre,'commande':(i.getCommande)}  }) %}
+
+
+                    {% endfor %}
+                {% endif %}
+
+
+                {% for w in semaines %}
+
+                    {% set numSemaine = w[1]|date("W") %}
+                    {% set s = suivi['semaines'][numSemaine]|default([]) %}
+                    {% set jourDebut = null %}
+                    {% set jourFin = null %}
+                    {% set trClass = loop.index is even ? 'even' : 'odd' %}
+
+
+
+
+                    <tr class="{{ trClass }} heureTr">
+                        <td class="text_center"> <strong>Semaine {{ numSemaine }}</strong></td>
+                        {% set break = false %}
+                        {% for h in 8..18 %}
+
+                            {% for minut in range(0,45,15) if not break %}
+
+                                <td class="text_center">
+                                    {% set hm=  h<10  ? 0~h : h %}
+                                    {% set heureEl=  minut==0 ? h ~ 'h'  ~ '00' : h ~ 'h'  ~  minut  %}
+                                    {% set arrayH= arrayH|merge([ heureEl ]) %}
+
+                                    {% set heureEl2=  minut==0 ? hm ~ ':'  ~ '00' : hm ~ ':'  ~  minut  %}
+
+
+                                    {% set arrayH2= arrayH2|merge([ heureEl2 ]) %}
+
+
+                                    <strong data-h="{{ loop.index }} {{ h }}h{% if minut==0 %}00 {% else %}{{ minut }} {% endif %} ">
+                                        {{ h }}h{% if minut==0 %}00 {% else %}{{ minut }} {% endif %}
+                                    </strong>
+                                </td>
+
+                                {% if h == 18 %}
+                                    {% set break = true %}
+                                {% endif %}
+
+                            {% endfor %}
+                        {% endfor %}
+
+                    </tr>
+
+
+
+                    {% for jour in w %}
+
+                        {% if jour|date('m') == mois %}
+                            {% if jourDebut is null %}
+                                {% set jourDebut = jour %}
+                            {% endif %}
+                            {% set jourFin = jour %}
+                        {% endif %}
+                        <tr id="{{ numSemaine}}{{ loop.index }}" class="{{ trClass }}heure "  data-semaine="{{ numSemaine}}" name="theure" >
+
+                            <td class="text_center heureTr {% if jour|date('m') != mois %}  totalNB {% endif %} ">    {% if jour|date('m') != mois %}  {% else %} {{ jour |date("d/m/Y")}} {% endif %} </td>
+
+                            {% for i in 1..41 %}
+
+                                {% if jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]] is defined %}
+                                {% set plageValue=   jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]]  %}
+                                    {% else %}
+                                    {% set plageValue=null %}
+                                {% endif %}
+                                <td class="text_center td-exel
+
+                                    {% if   plageValue is not null   and plageValue.commande is same as(app.request.get('commande')+0) %} commande commandeInput {% elseif  app.request.get('commande') is  null and  plageValue is not null and plageValue.commande is same as(lengthCommande)  %}commande commandeInput{% endif %}
+
+
+                                     {% if jour|date('m') != mois %}  totalNB {% endif %} " id="check{{i}}" data-jour="{{ i }}">
+
+
+                                    {% if jour|date('m') != mois %}
+                                    {% else %}
+                                        <input class="highlight  {% if  plageValue is not null %} mustBeDisable {% endif %}" type="number" name="{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}"
+                                                {#{% if jour|date("d/m/Y")~' '~arrayH2[i-1] in jourHeure %}checked  {% endif %} #}
+                                                {% if   plageValue is not null %} disabled="disabled"  value="{{  plageValue.nombre }}" data-commande="{{  plageValue.nombre }}" min="{{ plageValue.nombre }}" {% else %} min=0 {% endif %}
+                                                oninput="validity.valid||(value='');"  />
+                                        {#<input type="hidden" name="hidden-{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}" value="{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}">#}
+                                    {% endif %}
+
+                                    <div class="text-exel"></div>
+                                </td>
+                                {#<td class="text_center td-exel#}
+
+                                    {#{% if   jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]] is defined   and  jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]].commande is same as(app.request.get('commande')+0) %} commande commandeInput {% elseif  app.request.get('commande') is  null and  jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]] is defined and jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]].commande is same as(lengthCommande)  %}commande commandeInput{% endif %}#}
+
+
+                                     {#{% if jour|date('m') != mois %}  totalNB {% endif %} " id="check{{i}}" data-jour="{{ i }}">#}
+
+
+                                        {#{% if jour|date('m') != mois %}#}
+                                            {#{% else %}#}
+                                                  {#<input class="highlight  {% if   jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]] is defined %} mustBeDisable {% endif %}" type="number" name="{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}"#}
+                                                         {#{% if jour|date("d/m/Y")~' '~arrayH2[i-1] in jourHeure %}checked  {% endif %} #}
+                                                          {#{% if   jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]] is defined %} disabled="disabled"  value="{{  jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]].nombre }}" data-commande="{{  jourHeure[jour|date("d/m/Y")~' '~arrayH2[i-1]].nombre }}"  {% endif %}#}
+                                                         {#min=0 oninput="validity.valid||(value='');"  />#}
+                                                  {#<input type="hidden" name="hidden-{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}" value="{{ jour|date("d-m-Y") }}/{{ arrayH[i-1] }}">#}
+                                        {#{% endif %}#}
+
+                                    {#<div class="text-exel"></div>#}
+                                {#</td>#}
+                            {% endfor %}
+                            <td class="text_center ah total" id="{{numSemaine}}{{ loop.index }}td">0 </td>
+
+
+                        </tr>
+
+
+
+                    {% endfor %}
+
+                {% endfor %}
+                <tr>
+                    <td   class="text_center" >Total</td>
+                    {% for i in 1..42 %}
+                        {% if i==42 %}
+                            <td id="sumTotal"  class="text_center">
+
+                                0
+                            </td>
+                        {% else  %}
+                            <td id="total{{ i }}" class="text_center total" data-jour="{{ i }}">
+
+                                0
+                            </td>
+                        {% endif %}
+
+
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+    </div>
+            <div class="submit_zone">
+                <label class="btn_valider" for="submit_planification"><span class="icon-checkmark"></span> VALIDER</label>
+                <input type="submit" id="submit_planification" />
+            </div>
+
+    </form>
+
+{% endblock %}
+
+
+{% block inner_javascripts %}
+    {{ parent() }}
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+
+        class HandleEventClickCheced{
+            constructor(){
+            }
+            handleOnChangeFilter(){
+                var annee       = document.getElementById('agenda_annee').value,
+                    agance       = document.getElementById('agenda').value,
+                    mois        = document.getElementById('agenda_mois').value;
+                   // commande        = document.getElementById('commande').value || 1;
+                if(annee && mois ){
+                    let route = "{{ path('commande_planification', {annee:'anneValue',mois:'moiValue',agenda:'agendaValue'})|escape('js') }}";
+                    route=route.replace("anneValue",annee);
+                    route=route.replace("moiValue",mois.trim());
+                    route=route.replace("agendaValue",agance);
+                 //   route=route.replace("agendaCommande",commande);
+
+                   // console.log(route);
+                   location.href =route;
+                }
+            }
+            handleOnChangeFilterAgance(){
+                var annee       = document.getElementById('agenda_annee').value,
+                    agance       = document.getElementById('agenda').value,
+                    mois        = document.getElementById('agenda_mois').value,
+                    commande        = document.getElementById('commande').value || 1;
+                if(annee && mois ){
+                    let route = "{{ path('commande_planification', {annee:'anneValue',mois:'moiValue',agenda:'agendaValue',commande:'agendaCommande'})|escape('js') }}";
+                    route=route.replace("anneValue",annee);
+                    route=route.replace("moiValue",mois.trim());
+                    route=route.replace("agendaValue",agance);
+                    route=route.replace("agendaCommande",commande);
+
+                    // console.log(route);
+                    location.href =route;
+                }
+            }
+
+        }
+
+
+
+        let objChangeSelect=new HandleEventClickCheced();
+
+        $('#agenda_annee, #agenda_mois,#agenda').on('change', objChangeSelect.handleOnChangeFilter);
+        $('#commande').on('change', objChangeSelect.handleOnChangeFilterAgance);
+
+        let trHeures=document.querySelectorAll('tr[name ="theure"]');
+        let totalRowHeure=document.querySelectorAll('.ah');
+
+        ////////////////////////////
+
+        const sumTotal=()=>{
+            let sumTotal=0;
+            totalRowHeure.forEach(function (el) {
+                sumTotal+=parseInt(el.textContent)
+
+            });
+            document.getElementById('sumTotal').textContent=sumTotal;
+        }
+        const sumCol=(idTarget,dataset)=>{
+            let sum=0;
+            let all=document.querySelectorAll(`td[data-jour="${dataset}"]`);
+            all.forEach((el)=>{
+               if(el.querySelector('input')){
+                   sum=  sum +parseInt(el.querySelector('input').value||0)||0 ;
+               }
+              //
+            })
+            document.getElementById(idTarget).innerText=sum;
+        }
+
+        trHeures.forEach((el)=>{
+            el.querySelectorAll('input').forEach((input)=>{
+
+                input.addEventListener('input',e=>{
+
+
+                    let sumRow=0;
+
+                   let row= document.getElementById(el.id).querySelectorAll('input[type="number"]');
+                     row.forEach((inputRow,index)=>{
+                         sumRow=  sumRow +parseInt(inputRow.value||0)||0 ;
+                     })
+
+                    document.getElementById(`${el.id}td`).innerText=sumRow;
+
+
+                    sumCol(`total${e.target.closest('td').dataset.jour}`,e.target.closest('td').dataset.jour);
+                    sumTotal();
+
+                   //console.log()
+                })
+            })
+        })
+
+        const init=()=>{
+            trHeures.forEach((el)=>{
+                el.querySelectorAll('input').forEach((input)=>{
+
+                    input.disabled=true;
+                        let sumRow=0;
+
+                        let row= document.getElementById(el.id).querySelectorAll('input[type="number"]');
+                        row.forEach((inputRow,index)=>{
+                            sumRow=  sumRow +parseInt(inputRow.value||0)||0 ;
+                        })
+
+                        document.getElementById(`${el.id}td`).innerText=sumRow;
+
+
+                        sumCol(`total${input.closest('td').dataset.jour}`,input.closest('td').dataset.jour);
+                        sumTotal();
+
+                        //console.log()
+
+                })
+            })
+        }
+
+
+        document.querySelectorAll('input').forEach((el)=>{
+            el.addEventListener('focus',(e)=>{
+                e.target.classList.add('customInput');
+                e.target.classList.add('paddingInput')
+
+            })
+            el.addEventListener('blur',(e)=>{
+                e.target.classList.remove('customInput');
+                e.target.classList.remove('paddingInput')
+                if( e.target.value < e.target.dataset.commande ){
+                    e.target.value=e.target.dataset.commande;
+
+
+                }
+            })
+        })
+
+        const clear=()=>{
+          //  document.querySelectorAll('input:not(.mustBeDisable)').forEach((input,index)=>{
+            document.querySelectorAll('input').forEach((input,index)=>{
+                input.disabled=false;
+
+                if(index==1){
+                    console.log(input)
+                    console.log(input.value)
+                    input.focus()
+                }
+            })
+            if(document.getElementById('commande').querySelectorAll('option').length >2){
+                let option=document.createElement('option');
+                option.innerText="Supplémentaire n°{{commandes|length}}";
+
+
+                document.getElementById('commande').appendChild(option);
+                option.selected= 'selected';
+            }
+
+        }
+
+        document.getElementById('clear').addEventListener('click',(e)=>{
+            e.preventDefault();
+            console.log('eeee')
+            clear();
+            e.target.style.display='none';
+        })
+        init()
+        ///////////////////End  function onChangeFilter///////////////////////////////////////////////////////////////////////////////
+
+
+
+    </script>
+
+{% endblock %}
+
+
+
+{#const  initUrl=()=>{#}
+
+{#var annee       = document.getElementById('agenda_annee').value,#}
+{#agance       = document.getElementById('agenda').value,#}
+{#mois        = document.getElementById('agenda_mois').value,#}
+{#commande        = document.getElementById('commande').value || '';#}
+
+{#let route = "{{ path('commande_planification', {annee:'anneValue',mois:'moiValue',agenda:'agendaValue',commande:'agendaCommande'})|escape('js') }}";#}
+{#route=route.replace("anneValue",annee);#}
+{#route=route.replace("moiValue",mois.trim());#}
+{#route=route.replace("agendaValue",agance);#}
+{#route=route.replace("agendaCommande",commande);#}
+
+{#// console.log(route);#}
+{#// location.href =route;planification#}
+{#//  location.href =route;#}
+{#history.pushState({agenda: agance,annee:annee,mois:mois,commande:commande}, "title 1", route);#}
+
+
+{#}#}
+{#{% if app.request.get('agenda') is  null  or   app.request.get('annee') is null or app.request.get('mois') is null or app.request.get('commande') is null %}#}
+    {#// initUrl()#}
+{#{% endif %}#}

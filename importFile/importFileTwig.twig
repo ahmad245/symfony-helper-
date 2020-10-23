@@ -1,0 +1,115 @@
+{% extends '::base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style type="text/css">
+        .vich-file input[type=file] {
+            display: none;
+        }
+        form label[for] {
+            cursor: pointer;
+        }
+        form .field label, .form .field label {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .file-label {
+            width: 100%;
+            background-color: #f0f0f0;
+            display: flex !important;
+            align-items: center;
+            text-indent: 15px;
+            /* font-size: 1.1rem; */
+            cursor: pointer;
+            height: 40px;
+        }
+        form label {
+            color: #464c58;
+            margin-bottom: 2px;
+            font-size: 1.2em;
+            font-size: 13.2px;
+        }
+        #displayable_content h1 {
+            color: #02abac;
+            text-transform: uppercase;
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    {% if success == true %}
+    <div class="inline-block" style="margin-top: 12px">
+        <a href="{{ path('commande_planification_gere',{'annee':info.annee,'mois':info.mois  }) }}">
+            <h4 class="gras">{{ info.commande }} </h4>
+        </a>
+    </div>
+    {% endif %}
+    <form id="form_import" method="post" action="{{ path('commande_importer') }}" enctype="multipart/form-data">
+        <div class="list-header" style="display: inline-block">
+            <div class="field file-handler" style="margin-top: 0;width: 500px">
+                <label class="required">Fichier mensuel de commande Pôle emploi (format Excel)</label>
+                <div class="vich-file"><input type="file" id="fichier_commande" name="fichier_commande" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/></div>
+                <label class="file-label" id="file-label" for="fichier_commande">Sélectionner ou glisser / déposer un fichier</label>
+            </div>
+
+            <div class="field" style="margin-top: 0">
+                <label>&nbsp;</label>
+                <a href="#" class="btn_action" style="float:none; margin: 0 auto; vertical-align: bottom; display: block; width:150px;" onclick="postForm(); return false;">Importer</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block inner_javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(function(){
+            $('#fichier_commande').on('change', function(){
+                var lFiles = event.target.files === undefined ?  $(this).closest('div').find('input[type=file]')[0].files : event.target.files;
+                var lLabel = $(this).closest('div.field').find('.file-label');
+                $(lLabel).removeClass('empty');
+                $(lLabel).html(lFiles[0].name);
+            });
+
+            $('#file-label')
+                .on({
+                    'drop': handleDroppedFile,
+                    'dragenter': function(e) { e.preventDefault(); },
+                    'dragover': function(e) {
+                        e.preventDefault();
+                        this.classList.add('dragged-over');
+                    }
+                })
+                .on('dragleave dragexit', function() {
+                    this.classList.remove('dragged-over')
+                });
+        });
+
+        // Handle the file dropped on input files labels
+        function handleDroppedFile(evt) {
+            evt.preventDefault();
+            var lInputFile = $(this).closest('div').find('input[type=file]');
+            var dT = evt.originalEvent.dataTransfer;
+            var files = dT.files;
+
+            if (files && files.length) {
+                lInputFile[0].files = files;
+                $(lInputFile).trigger('change', lInputFile);
+            }
+        }
+
+        function postForm()
+        {
+            if(!$('#fichier_commande').val()) {
+                ModalAlert.alert('Veuillez sélectionner un fichier à importer.');
+            } else {
+                $('#form_import').submit();
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends '::base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style type="text/css">
+        header {
+            -webkit-box-shadow: none;
+            -moz-box-shadow: none;
+            box-shadow: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="displayable_content" class="" style="padding: 0; overflow: hidden;">
+        <iframe src="about:blank" id="iframe_content" name="iframe_content" style="width: 100%; height: 100%; border: none;" frameborder="0"></iframe>
+    </div>
+
+
+{% endblock %}
+
+{% block inner_javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+
+        top.addEventListener('message',(e)=>{
+
+            $.fancybox.open({
+                href  : "http://aa.acceleremploi-admin.onlineformapro.org:8093/reporting/stagiaire/metiersIframe",
+                type : 'iframe',
+                opts : {
+                    afterShow : function( instance, current ) {
+                        console.info( 'done!' );
+                    }
+                },
+
+            });
+
+        },false)
+        $('#iframe_content')
+            .on('load', function() {
+                $('#displayable_content').removeSpinner();
+            })
+            .attr('src', "{{ iframe_url }}");
+        $('#displayable_content').appendSpinner();
+    </script>
+{% e

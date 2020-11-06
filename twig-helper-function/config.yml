@@ -1,0 +1,11 @@
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+    form_themes:
+        - 'forms/fields.html.twig'
+    globals:
+        twig_mailer_baseurl: "%mailer_baseurl%"
+        lms_base_url: "%lms_url%"
+#        ////////////////////////////Ahmad added//////////////////////////////////////
+        image_helper: "@ufmcp.image_helper"

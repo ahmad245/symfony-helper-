@@ -1,0 +1,3 @@
+ufmcp.image_helper:
+         class: UfmcpBundle\Service\ImageHelper
+         arguments: [ "@service_container" ]
